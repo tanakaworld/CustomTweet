@@ -25,6 +25,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    [self fetchTweets];
 	// Do any additional setup after loading the view, typically from a nib.
     self.navigationItem.leftBarButtonItem = self.editButtonItem;
 
@@ -107,7 +108,24 @@
         NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
         NSDate *object = _objects[indexPath.row];
         [[segue destinationViewController] setDetailItem:object];
+        
+        NSError* error;
+        
+        tweets = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&error];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.tableView reloadData];
+        });
     }
 }
+
+-(void)fetchTweets
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSData* data = [NSData dataWithContentsOfURL:
+                        [NSURL URLWithString: @"https://api.twitter.com/1/statuses/public_timeline.json"]];
+    });
+}
+
 
 @end
